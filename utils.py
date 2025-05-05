@@ -2,6 +2,7 @@ import numpy as np
 from typing import Sequence, Optional
 import os
 import matplotlib.pyplot as plt
+import math
 
 def load_npy_array(file_path) -> np.ndarray:
     """Load a numpy array from the given .npy file."""
