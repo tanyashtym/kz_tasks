@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Sequence, Optional
 import os
 import matplotlib.pyplot as plt
 
@@ -51,3 +52,62 @@ def display_side_by_side(
     # Render the combined figure
     plt.tight_layout()
     plt.show()
+
+def show_images(
+    images: Sequence[np.ndarray],
+    cmaps: Optional[Sequence[Optional[str]]] = None,
+    titles: Optional[Sequence[str]] = None,
+    max_per_row: int = 2,
+    figsize: tuple[float, float] = (8, 8)
+) -> None:
+    """
+    Display up to 4 images in a grid that adapts to the number of images.
+
+    Parameters
+    ----------
+    images : sequence of ndarray
+        The images to show.
+    cmaps : sequence of str or None, optional
+        Colormaps for each image (e.g. 'gray'); use None for RGB.
+        If not provided, all images are shown with their default colormap.
+    titles : sequence of str, optional
+        Titles for each subplot. If not provided, no titles are set.
+    max_per_row : int, default=2
+        Maximum number of columns in the grid.
+    figsize : (width, height), default=(8, 8)
+        Base figure size; will be scaled by rows and columns.
+    """
+    n = len(images)
+    if not (1 <= n <= 4):
+        raise ValueError("This function supports between 1 and 4 images.")
+
+    # defaults
+    cmaps = cmaps or [None] * n
+    titles = titles or [""] * n
+
+    # determine grid
+    cols = min(max_per_row, n)
+    rows = math.ceil(n / cols)
+
+    fig, axes = plt.subplots(rows, cols,
+                             figsize=(figsize[0] * cols, figsize[1] * rows))
+    # flatten in case of 1×1 or 1D layouts
+    if isinstance(axes, np.ndarray):
+        axes = axes.flatten()
+    else:
+        axes = [axes]
+
+    # plot each image
+    for ax, img, cmap, title in zip(axes, images, cmaps, titles):
+        ax.imshow(img, cmap=cmap)
+        if title:
+            ax.set_title(title)
+        ax.axis('off')
+
+    # hide any unused axes
+    for ax in axes[n:]:
+        ax.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
